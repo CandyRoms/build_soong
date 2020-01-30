@@ -287,7 +287,7 @@ func (a *AndroidApp) dexBuildActions(ctx android.ModuleContext) android.Path {
 	a.dexpreopter.uncompressedDex = a.shouldUncompressDex(ctx)
 	a.deviceProperties.UncompressDex = a.dexpreopter.uncompressedDex
 
-	if ctx.ModuleName() != "framework-res"  {
+	if ctx.ModuleName() != "framework-res" {
 		a.Module.compile(ctx, a.aaptSrcJar)
 	}
 
