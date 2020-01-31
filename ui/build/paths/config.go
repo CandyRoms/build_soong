@@ -78,6 +78,7 @@ var Configuration = map[string]PathConfig{
 	"brotli":   Allowed,
 	"bison":    Allowed,
 	"bzip2":    Allowed,
+	"curl":     Allowed,
 	"date":     Allowed,
 	"dd":       Allowed,
 	"diff":     Allowed,
@@ -85,6 +86,7 @@ var Configuration = map[string]PathConfig{
 	"expr":     Allowed,
 	"find":     Allowed,
 	"flex":     Allowed,
+	"flock":    Allowed,
 	"fuser":    Allowed,
 	"getopt":   Allowed,
 	"git":      Allowed,
@@ -114,7 +116,8 @@ var Configuration = map[string]PathConfig{
 	"tr":       Allowed,
 	"unzip":    Allowed,
 	"zip":      Allowed,
-
+	"zipinfo":  Allowed,
+  
 	// Host toolchain is removed. In-tree toolchain should be used instead.
 	// GCC also can't find cc1 with this implementation.
 	"ar":         Forbidden,
