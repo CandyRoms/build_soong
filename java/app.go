@@ -259,8 +259,8 @@ type overridableAppProperties struct {
 	// or an android_app_certificate module name in the form ":module".
 	Certificate *string
 
-	// Name of the signing certificate lineage file.
-	Lineage *string
+	// Name of the signing certificate candy file.
+	Candy *string
 
 	// the package name of this app. The package name in the manifest file is used if one was not given.
 	Package_name *string
@@ -790,11 +790,11 @@ func (a *AndroidApp) generateAndroidBuildActions(ctx android.ModuleContext) {
 	if v4SigningRequested {
 		v4SignatureFile = android.PathForModuleOut(ctx, a.installApkName+".apk.idsig")
 	}
-	var lineageFile android.Path
-	if lineage := String(a.overridableAppProperties.Lineage); lineage != "" {
-		lineageFile = android.PathForModuleSrc(ctx, lineage)
+	var candyFile android.Path
+	if candy := String(a.overridableAppProperties.Candy); candy != "" {
+		candyFile = android.PathForModuleSrc(ctx, candy)
 	}
-	CreateAndSignAppPackage(ctx, packageFile, a.exportPackage, jniJarFile, dexJarFile, certificates, apkDeps, v4SignatureFile, lineageFile)
+	CreateAndSignAppPackage(ctx, packageFile, a.exportPackage, jniJarFile, dexJarFile, certificates, apkDeps, v4SignatureFile, candyFile)
 	a.outputFile = packageFile
 	if v4SigningRequested {
 		a.extraOutputFiles = append(a.extraOutputFiles, v4SignatureFile)
@@ -806,7 +806,7 @@ func (a *AndroidApp) generateAndroidBuildActions(ctx android.ModuleContext) {
 		if v4SigningRequested {
 			v4SignatureFile = android.PathForModuleOut(ctx, a.installApkName+"_"+split.suffix+".apk.idsig")
 		}
-		CreateAndSignAppPackage(ctx, packageFile, split.path, nil, nil, certificates, apkDeps, v4SignatureFile, lineageFile)
+		CreateAndSignAppPackage(ctx, packageFile, split.path, nil, nil, certificates, apkDeps, v4SignatureFile, candyFile)
 		a.extraOutputFiles = append(a.extraOutputFiles, packageFile)
 		if v4SigningRequested {
 			a.extraOutputFiles = append(a.extraOutputFiles, v4SignatureFile)
@@ -1315,8 +1315,8 @@ type AndroidAppImportProperties struct {
 	// be set for presigned modules.
 	Presigned *bool
 
-	// Name of the signing certificate lineage file.
-	Lineage *string
+	// Name of the signing certificate candy file.
+	Candy *string
 
 	// Sign with the default system dev certificate. Must be used judiciously. Most imported apps
 	// need to either specify a specific certificate or be presigned.
@@ -1520,11 +1520,11 @@ func (a *AndroidAppImport) generateAndroidBuildActions(ctx android.ModuleContext
 		}
 		a.certificate = certificates[0]
 		signed := android.PathForModuleOut(ctx, "signed", apkFilename)
-		var lineageFile android.Path
-		if lineage := String(a.properties.Lineage); lineage != "" {
-			lineageFile = android.PathForModuleSrc(ctx, lineage)
+		var candyFile android.Path
+		if candy := String(a.properties.Candy); candy != "" {
+			candyFile = android.PathForModuleSrc(ctx, candy)
 		}
-		SignAppPackage(ctx, signed, dexOutput, certificates, nil, lineageFile)
+		SignAppPackage(ctx, signed, dexOutput, certificates, nil, candyFile)
 		a.outputFile = signed
 	} else {
 		alignedApk := android.PathForModuleOut(ctx, "zip-aligned", apkFilename)
@@ -1717,8 +1717,8 @@ type RuntimeResourceOverlayProperties struct {
 	// module name in the form ":module".
 	Certificate *string
 
-	// Name of the signing certificate lineage file.
-	Lineage *string
+	// Name of the signing certificate candy file.
+	Candy *string
 
 	// optional theme name. If specified, the overlay package will be applied
 	// only when the ro.boot.vendor.overlay.theme system property is set to the same value.
@@ -1785,11 +1785,11 @@ func (r *RuntimeResourceOverlay) GenerateAndroidBuildActions(ctx android.ModuleC
 	_, certificates := collectAppDeps(ctx, r, false, false)
 	certificates = processMainCert(r.ModuleBase, String(r.properties.Certificate), certificates, ctx)
 	signed := android.PathForModuleOut(ctx, "signed", r.Name()+".apk")
-	var lineageFile android.Path
-	if lineage := String(r.properties.Lineage); lineage != "" {
-		lineageFile = android.PathForModuleSrc(ctx, lineage)
+	var candyFile android.Path
+	if candy := String(r.properties.Candy); candy != "" {
+		candyFile = android.PathForModuleSrc(ctx, candy)
 	}
-	SignAppPackage(ctx, signed, r.aapt.exportPackage, certificates, nil, lineageFile)
+	SignAppPackage(ctx, signed, r.aapt.exportPackage, certificates, nil, candyFile)
 	r.certificate = certificates[0]
 
 	r.outputFile = signed

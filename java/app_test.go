@@ -1446,7 +1446,7 @@ func TestCertificates(t *testing.T) {
 		name                string
 		bp                  string
 		certificateOverride string
-		expectedLineage     string
+		expectedCandy     string
 		expectedCertificate string
 	}{
 		{
@@ -1459,7 +1459,7 @@ func TestCertificates(t *testing.T) {
 				}
 			`,
 			certificateOverride: "",
-			expectedLineage:     "",
+			expectedCandy:     "",
 			expectedCertificate: "build/make/target/product/security/testkey.x509.pem build/make/target/product/security/testkey.pk8",
 		},
 		{
@@ -1478,7 +1478,7 @@ func TestCertificates(t *testing.T) {
 				}
 			`,
 			certificateOverride: "",
-			expectedLineage:     "",
+			expectedCandy:     "",
 			expectedCertificate: "cert/new_cert.x509.pem cert/new_cert.pk8",
 		},
 		{
@@ -1492,7 +1492,7 @@ func TestCertificates(t *testing.T) {
 				}
 			`,
 			certificateOverride: "",
-			expectedLineage:     "",
+			expectedCandy:     "",
 			expectedCertificate: "build/make/target/product/security/expiredkey.x509.pem build/make/target/product/security/expiredkey.pk8",
 		},
 		{
@@ -1511,17 +1511,17 @@ func TestCertificates(t *testing.T) {
 				}
 			`,
 			certificateOverride: "foo:new_certificate",
-			expectedLineage:     "",
+			expectedCandy:     "",
 			expectedCertificate: "cert/new_cert.x509.pem cert/new_cert.pk8",
 		},
 		{
-			name: "certificate lineage",
+			name: "certificate candy",
 			bp: `
 				android_app {
 					name: "foo",
 					srcs: ["a.java"],
 					certificate: ":new_certificate",
-					lineage: "lineage.bin",
+					candy: "candy.bin",
 					sdk_version: "current",
 				}
 
@@ -1531,7 +1531,7 @@ func TestCertificates(t *testing.T) {
 				}
 			`,
 			certificateOverride: "",
-			expectedLineage:     "--lineage lineage.bin",
+			expectedCandy:     "--candy candy.bin",
 			expectedCertificate: "cert/new_cert.x509.pem cert/new_cert.pk8",
 		},
 	}
@@ -1554,8 +1554,8 @@ func TestCertificates(t *testing.T) {
 			}
 
 			signFlags := signapk.Args["flags"]
-			if test.expectedLineage != signFlags {
-				t.Errorf("Incorrect signing flags, expected: %q, got: %q", test.expectedLineage, signFlags)
+			if test.expectedCandy != signFlags {
+				t.Errorf("Incorrect signing flags, expected: %q, got: %q", test.expectedCandy, signFlags)
 			}
 		})
 	}
@@ -1729,7 +1729,7 @@ func TestOverrideAndroidApp(t *testing.T) {
 			name: "bar",
 			base: "foo",
 			certificate: ":new_certificate",
-			lineage: "lineage.bin",
+			candy: "candy.bin",
 			logging_parent: "bah",
 		}
 
@@ -1751,7 +1751,7 @@ func TestOverrideAndroidApp(t *testing.T) {
 		apkName        string
 		apkPath        string
 		certFlag       string
-		lineageFlag    string
+		candyFlag    string
 		overrides      []string
 		aaptFlag       string
 		logging_parent string
@@ -1761,7 +1761,7 @@ func TestOverrideAndroidApp(t *testing.T) {
 			variantName:    "android_common",
 			apkPath:        "/target/product/test_device/system/app/foo/foo.apk",
 			certFlag:       "build/make/target/product/security/expiredkey.x509.pem build/make/target/product/security/expiredkey.pk8",
-			lineageFlag:    "",
+			candyFlag:    "",
 			overrides:      []string{"qux"},
 			aaptFlag:       "",
 			logging_parent: "",
@@ -1771,7 +1771,7 @@ func TestOverrideAndroidApp(t *testing.T) {
 			variantName:    "android_common_bar",
 			apkPath:        "/target/product/test_device/system/app/bar/bar.apk",
 			certFlag:       "cert/new_cert.x509.pem cert/new_cert.pk8",
-			lineageFlag:    "--lineage lineage.bin",
+			candyFlag:    "--candy candy.bin",
 			overrides:      []string{"qux", "foo"},
 			aaptFlag:       "",
 			logging_parent: "bah",
@@ -1781,7 +1781,7 @@ func TestOverrideAndroidApp(t *testing.T) {
 			variantName:    "android_common_baz",
 			apkPath:        "/target/product/test_device/system/app/baz/baz.apk",
 			certFlag:       "build/make/target/product/security/expiredkey.x509.pem build/make/target/product/security/expiredkey.pk8",
-			lineageFlag:    "",
+			candyFlag:    "",
 			overrides:      []string{"qux", "foo"},
 			aaptFlag:       "--rename-manifest-package org.dandroid.bp",
 			logging_parent: "",
@@ -1811,10 +1811,10 @@ func TestOverrideAndroidApp(t *testing.T) {
 			t.Errorf("Incorrect signing flags, expected: %q, got: %q", expected.certFlag, certFlag)
 		}
 
-		// Check the lineage flags
-		lineageFlag := signapk.Args["flags"]
-		if expected.lineageFlag != lineageFlag {
-			t.Errorf("Incorrect signing flags, expected: %q, got: %q", expected.lineageFlag, lineageFlag)
+		// Check the candy flags
+		candyFlag := signapk.Args["flags"]
+		if expected.candyFlag != candyFlag {
+			t.Errorf("Incorrect signing flags, expected: %q, got: %q", expected.candyFlag, candyFlag)
 		}
 
 		// Check if the overrides field values are correctly aggregated.
@@ -2136,22 +2136,22 @@ func TestAndroidAppImport_Presigned(t *testing.T) {
 	}
 }
 
-func TestAndroidAppImport_SigningLineage(t *testing.T) {
+func TestAndroidAppImport_SigningCandy(t *testing.T) {
 	ctx, _ := testJava(t, `
 	  android_app_import {
 			name: "foo",
 			apk: "prebuilts/apk/app.apk",
 			certificate: "platform",
-			lineage: "lineage.bin",
+			candy: "candy.bin",
 		}
 	`)
 
 	variant := ctx.ModuleForTests("foo", "android_common")
 
-	// Check cert signing lineage flag.
+	// Check cert signing candy flag.
 	signedApk := variant.Output("signed/foo.apk")
 	signingFlag := signedApk.Args["flags"]
-	expected := "--lineage lineage.bin"
+	expected := "--candy candy.bin"
 	if expected != signingFlag {
 		t.Errorf("Incorrect signing flags, expected: %q, got: %q", expected, signingFlag)
 	}
@@ -2965,7 +2965,7 @@ func TestRuntimeResourceOverlay(t *testing.T) {
 		runtime_resource_overlay {
 			name: "foo",
 			certificate: "platform",
-			lineage: "lineage.bin",
+			candy: "candy.bin",
 			product_specific: true,
 			static_libs: ["bar"],
 			resource_libs: ["baz"],
@@ -3020,10 +3020,10 @@ func TestRuntimeResourceOverlay(t *testing.T) {
 
 	// Check cert signing flag.
 	signedApk := m.Output("signed/foo.apk")
-	lineageFlag := signedApk.Args["flags"]
-	expectedLineageFlag := "--lineage lineage.bin"
-	if expectedLineageFlag != lineageFlag {
-		t.Errorf("Incorrect signing lineage flags, expected: %q, got: %q", expectedLineageFlag, lineageFlag)
+	candyFlag := signedApk.Args["flags"]
+	expectedCandyFlag := "--candy candy.bin"
+	if expectedCandyFlag != candyFlag {
+		t.Errorf("Incorrect signing candy flags, expected: %q, got: %q", expectedCandyFlag, candyFlag)
 	}
 	signingFlag := signedApk.Args["certificates"]
 	expected := "build/make/target/product/security/platform.x509.pem build/make/target/product/security/platform.pk8"
