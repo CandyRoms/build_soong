@@ -255,10 +255,6 @@ com\.google\.i18n\.phonenumbers
 org\.chromium\.arc
 org\.chromium\.arc\..*
 
-###################################################
-# LineageOS
-vendor.lineage.touch.*
-
 # CodeAurora IMS functionality needed by frameworks/opt/telephony
 # as part of "ims-ext-common"
 org\.codeaurora\.ims.*
@@ -277,3 +273,11 @@ qcom.fmradio
 ###################################################
 # IFAA Manager used for Alipay and/or WeChat payment
 org\.ifaa\.android\.manager.*
+
+###################################################
+# LineageOS
+vendor.lineage.touch.*
+
+###################################################
+# LiveDisplay
+vendor.lineage.livedisplay.*
